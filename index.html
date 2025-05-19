@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warung Seblak Mantul</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/script.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Selamat Datang di Warung Seblak Mantul</h1>
+        <p>Nikmati Seblak dengan berbagai level pedas yang menggoyang lidah!.</p>
+    </header>
+
+    <section id="promo">
+        <h2>Promo Hari Ini</h2>
+        <p id="promoMessage">Klik tombol di bawah ini untuk melihat promo spesial hari ini.</p>
+        <button onclick="tampilkanPromo()">Lihat Promo</button>
+    </section>
+
+    <section id="menu">
+        <h2>Menu Seblak Favorit</h2>
+        <ul id="listMenu">
+            <!-- daftar menu akan ditampilkan javascript -->
+        </ul>
+        <button onclick="tampilkanMenu()">Tampilkan Menu</button>
+    </section>
+
+    <section id="order">
+        <h2>Pesan Seblak</h2>
+        <p>Pilih Menu dan Masukkan Jumlah Pesanan</p>
+        <br>
+        <label for="pilihMenu">Menu Seblak:</label>
+        <select name="" id="pilihMenu">
+            <!-- pilihan menu diisi oleh javascript -->
+        </select>
+        <br><br>
+        <label for="inputJumlah">Jumlah:</label>
+        <input type="number" id="inputJumlah" placeholder="Jumlah Pesanan">
+        <br>
+        <button onclick="cekPesanan()">Pesan Sekarang</button>
+        <br><br>
+        <p id="hasilPesanan"></p>
+        <p id="totalBayar"></p>
+        <br>
+
+        <!-- input jumlah uang yang dibayar -->
+        <h3>Pembayaran</h3>
+        <label for="uangBayar">Jumlah Uang Dibayar:</label>
+        <input type="number" id="uangBayar" placeholder="Masukkan Jumlah Uang">
+        <br>
+        <button onclick="hitungKembalian()">Hitung Kembalian</button>
+        <br><br>
+        <p id="hasilKembalian"></p>
+    </section>
+
+    <footer>
+        <p>&copy;2024 Warung Seblak Mantul. Semua Hak Dilindungi.</p>
+    </footer>
+</body>
+</html>
