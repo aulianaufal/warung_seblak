@@ -32,6 +32,22 @@ function formatRupiah(angka) {
     return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
+// Fungsi parsing input rupiah menjadi angka utuh
+function parseRupiah(value) {
+    const angka = value.replace(/\D/g, '');
+    return angka === '' ? 0 : Number(angka);
+}
+
+// Fungsi untuk format input pembayaran secara realtime
+function formatUangBayar(input) {
+    const angka = parseRupiah(input.value);
+    if (input.value.trim() === '') {
+        input.value = '';
+    } else {
+        input.value = angka === 0 ? '0' : formatRupiah(angka);
+    }
+}
+
 //Daftar menu seblak favorit beserta harga dan status diskon
 let menuFavorit = [
     {nama: "Seblak Kerupuk", harga: 17000, diskon: true}, //diskon 25%
@@ -132,9 +148,9 @@ function cekPesanan() {
 
 // Fungsi untuk menghitung kembalian
 function hitungKembalian() {
-    let uangBayar = Number(document.getElementById("uangBayar").value);
+    let uangBayar = parseRupiah(document.getElementById("uangBayar").value);
     let kembalian = uangBayar - totalHargaSetelahDiskon;
-    if (isNaN(uangBayar) || uangBayar === 0) {
+    if (isNaN(uangBayar) || uangBayar < 0) {
         document.getElementById("hasilKembalian").innerHTML = "Masukkan jumlah uang yang valid.";
         return;
     }
@@ -145,7 +161,7 @@ function hitungKembalian() {
     }
 }
 
-// non-reaktifkan tombol kembalian saat input kosong
+// menstabilkan tombol kembalian saat input kosong
 document.addEventListener('DOMContentLoaded', function () {
     const inputUang = document.getElementById('uangBayar');
     const btnKembalian = document.querySelector('#order button[onclick="hitungKembalian()"]');
@@ -161,7 +177,10 @@ document.addEventListener('DOMContentLoaded', function () {
     updateKembalianButtonState();
 
     // update saat user mengetik / menghapus nilai
-    inputUang.addEventListener('input', updateKembalianButtonState);
+    inputUang.addEventListener('input', function () {
+        formatUangBayar(inputUang);
+        updateKembalianButtonState();
+    });
 
     // tambahan: cegah aksi bila tombol dinonaktifkan
     btnKembalian.addEventListener('click', function (e) {
