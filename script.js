@@ -56,7 +56,7 @@ let menuFavorit = [
     {nama: "Seblak Bakso", harga: 17000, diskon: true}, //diskon 25%
 ];
 
-let totalHargaSetelahDiskon = null;
+let totalHargaSetelahDiskon = 12750; //variabel global untuk menyimpan total harga
 
 // pastikan menu hanya di-render saat tombol ditekan
 let menuShown = false;
@@ -103,128 +103,90 @@ function tampilkanMenu() {
 
 // Fungsi untuk memeriksa jumlah pesanan dan menghitung total bayar
 function cekPesanan() {
-    const pilihMenu = document.getElementById("pilihMenu");
-    const inputJumlah = document.getElementById("inputJumlah");
-    const hasilPesanan = document.getElementById("hasilPesanan");
-    const totalBayar = document.getElementById("totalBayar");
-    const uangBayar = document.getElementById("uangBayar");
-    const hasilKembalian = document.getElementById("hasilKembalian");
+    let menuIndex = Number(document.getElementById("pilihMenu").value);
+    let jumlah = Number(document.getElementById("inputJumlah").value);
+    let hasil = '';
+    let total = 0;
 
-    const menuValue = pilihMenu.value.trim();
-    const jumlahValue = inputJumlah.value.trim();
-
-    // Reset hasil pembayaran
-    totalHargaSetelahDiskon = null;
-    totalBayar.innerHTML = '';
-    hasilKembalian.innerHTML = '';
-    uangBayar.value = '';
-
-    // Jika menu dan jumlah sama-sama kosong
-    if (menuValue === '' && jumlahValue === '') {
-        hasilPesanan.innerHTML =
-            "Status: Isi jumlah dan pilihan menu terlebih dahulu.";
-        return;
-    }
-
-    // Jika menu belum dipilih
-    if (menuValue === '') {
-        hasilPesanan.innerHTML =
-            "Status: Pilih menu Seblak terlebih dahulu.";
-        return;
-    }
-
-    // Jika jumlah belum diisi
-    if (jumlahValue === '') {
-        hasilPesanan.innerHTML =
-            "Status: Isi jumlah pesanan terlebih dahulu.";
-        return;
-    }
-
-    const menuIndex = Number(menuValue);
-    const jumlah = Number(jumlahValue);
-
-    // Validasi jumlah
+    // cek jumlah pesanan
     if (isNaN(jumlah) || jumlah < 1) {
-        hasilPesanan.innerHTML =
-            "Status: Jumlah pesanan minimal 1.";
+        alert ("Jumlah pesanan tidak boleh kurang dari satu.");
         return;
     }
 
-    // Maksimal 20 porsi
+    // memastikan pesanan tidak kosong
     if (jumlah > 20) {
-        hasilPesanan.innerHTML =
-            "Status: Pesanan terlalu banyak! Maksimal 20 porsi.";
-        return;
+        hasil = "Pesanan terlalu banyak! Maksimal 20 porsi.";
+        document.getElementById("totalBayar").innerHTML = '';
+        totalHargaSetelahDiskon = 0; // reset jika pesanan invalid
+    } else {
+        let menuPilihan = menuFavorit[menuIndex];
+        if (!menuPilihan) {
+            hasil = "Pilih menu yang valid.";
+            document.getElementById("hasilPesanan").innerHTML = hasil;
+            document.getElementById("totalBayar").innerHTML = '';
+            totalHargaSetelahDiskon = 0; // reset
+            return;
+        }
+        let hargaPerItem = menuPilihan.harga;
+
+        // Cek apakah menu memiliki diskon
+        if (menuPilihan.diskon) {
+            hargaPerItem = hargaPerItem * 0.75; // Diskon 25%
+        }
+        total = hargaPerItem * jumlah;
+        totalHargaSetelahDiskon = total; // Simpan total harga setelah diskon untuk perhitungan kembalian
+        hasil = `Pesanan Anda sebanyak ${jumlah} porsi ${menuPilihan.nama} telah diterima!`;
+        document.getElementById("totalBayar").innerHTML = `Total yang harus dibayar: Rp${formatRupiah(Math.round(total))}`;
+        
+        // reset input pembayaran dan hasil kembalian saat pesanan baru
+        document.getElementById("uangBayar").value = '';
+        document.getElementById("hasilKembalian").innerHTML = '';
     }
-
-    // Ambil menu
-    const menuPilihan = menuFavorit[menuIndex];
-
-    if (!menuPilihan) {
-        hasilPesanan.innerHTML =
-            "Status: Pilih menu Seblak yang valid.";
-        return;
-    }
-
-    // Harga menu
-    let hargaPerItem = menuPilihan.harga;
-
-    // Diskon 25%
-    if (menuPilihan.diskon) {
-        hargaPerItem = hargaPerItem * 0.75;
-    }
-
-    // Hitung total
-    const total = hargaPerItem * jumlah;
-
-    totalHargaSetelahDiskon = Math.round(total);
-
-    // Tampilkan status pesanan
-    hasilPesanan.innerHTML =
-        `Status: Pesanan ${menuPilihan.nama} sebanyak ${jumlah} porsi telah diterima.`;
-
-    // Tampilkan total pembayaran
-    totalBayar.innerHTML =
-        `Total yang harus dibayar: Rp${formatRupiah(totalHargaSetelahDiskon)}`;
+    document.getElementById("hasilPesanan").innerHTML = hasil;
 }
 
 // Fungsi untuk menghitung kembalian
 function hitungKembalian() {
-    const hasilKembalian = document.getElementById("hasilKembalian");
-    const inputUang = document.getElementById("uangBayar");
-
-    // Belum melakukan pemesanan
-    if (totalHargaSetelahDiskon === null) {
-        hasilKembalian.innerHTML =
-            "Status: Isi jumlah dan pilihan menu terlebih dahulu.";
-        return;
-    }
-
-    // Uang pembayaran belum diisi
-    if (inputUang.value.trim() === '') {
-        hasilKembalian.innerHTML =
-            "Status: Isi jumlah uang pembayaran terlebih dahulu.";
-        return;
-    }
-
-    const uangBayar = parseRupiah(inputUang.value);
-
+    let uangBayar = parseRupiah(document.getElementById("uangBayar").value);
+    let kembalian = uangBayar - totalHargaSetelahDiskon;
     if (isNaN(uangBayar) || uangBayar < 0) {
-        hasilKembalian.innerHTML =
-            "Status: Masukkan jumlah uang yang valid.";
+        document.getElementById("hasilKembalian").innerHTML = "Masukkan jumlah uang yang valid.";
         return;
     }
-
-    const kembalian = uangBayar - totalHargaSetelahDiskon;
-
     if (kembalian < 0) {
-        hasilKembalian.innerHTML =
-            `Uang Anda kurang. Kurang Rp${formatRupiah(
-                Math.abs(kembalian)
-            )}`;
+        document.getElementById("hasilKembalian").innerHTML = `Uang Anda kurang. Kurang Rp${formatRupiah(Math.round(Math.abs(kembalian)))}`;
     } else {
-        hasilKembalian.innerHTML =
-            `Kembalian Anda: Rp${formatRupiah(kembalian)}`;
+        document.getElementById("hasilKembalian").innerHTML = `Kembalian Anda: Rp${formatRupiah(Math.round(kembalian))}`;
     }
+}
+
+// menstabilkan tombol kembalian saat input kosong
+document.addEventListener('DOMContentLoaded', function () {
+    const inputUang = document.getElementById('uangBayar');
+    const btnKembalian = document.querySelector('#order button[onclick="hitungKembalian()"]');
+
+    if (!inputUang || !btnKembalian) return;
+
+    function updateKembalianButtonState() {
+        const empty = inputUang.value.trim() === '';
+        btnKembalian.disabled = empty;
+    }
+
+    // inisialisasi keadaan tombol saat halaman dimuat
+    updateKembalianButtonState();
+
+    // update saat user mengetik / menghapus nilai
+    inputUang.addEventListener('input', function () {
+        formatUangBayar(inputUang);
+        updateKembalianButtonState();
+    });
+
+    // tambahan: cegah aksi bila tombol dinonaktifkan
+    btnKembalian.addEventListener('click', function (e) {
+        if (btnKembalian.disabled) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
     });
 });
